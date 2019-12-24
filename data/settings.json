@@ -1,0 +1,9 @@
+{
+  "timePeriod": "week",
+  "verticalLines": true,
+  "horizontalLines": true,
+  "hideEmptyWorkers": true,
+  "showLegend": true,
+  "showJobLabels": false,
+  "title": "План изготовления полуфабрикатов"
+}

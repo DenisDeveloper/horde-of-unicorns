@@ -1,0 +1,22 @@
+[
+  {
+    "jobType": "Планируемая партия",
+    "color": "#3094c3",
+    "borderColor": "#003300"
+  },
+  {
+    "jobType": "Зафиксированная партия",
+    "color": "#84cb66",
+    "borderColor": "#003366"
+  },
+  {
+    "jobType": "Переналадка",
+    "color": "#42b549",
+    "borderColor": "#ffcc00"
+  },
+  {
+    "jobType": "Перерыв",
+    "color": "#ff5722",
+    "borderColor": "#0000ff"
+  }
+]

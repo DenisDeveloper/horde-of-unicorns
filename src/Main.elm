@@ -4,7 +4,7 @@ import Browser as B
 import Browser.Dom as BD exposing (Viewport, Element, getViewportOf, getViewport, getElement)
 import Browser.Events exposing (onAnimationFrameDelta, onResize)
 import Html exposing (Html, div)
-import Html.Attributes exposing (width, height, style, class, id)
+import Html.Attributes as Attr exposing (width, height, style, class)
 import Html.Events exposing (onClick)
 import WebGL as GL exposing (Entity, Mesh, Shader)
 import Math.Matrix4 as Mat4 exposing (Mat4)
@@ -18,23 +18,38 @@ import Http
 type alias FooBar =
   { name : String }
 
-decoder : D.Decoder FooBar
-decoder =
-  D.map FooBar
-    (D.field "name" D.string)
+type alias JobEntity =
+  { id : Int
+  , jobId : Maybe Int
+  , workerId : Int
+  , jobType : String
+  , start : String
+  , finish : String
+  }
 
-getFooBar : Cmd Msg
-getFooBar =
+jobDecoder : D.Decoder (List JobEntity)
+jobDecoder =
+  D.map6 JobEntity
+    (D.field "id" D.int)
+    (D.field "jobId" (D.maybe D.int))
+    (D.field "workerId" D.int)
+    (D.field "jobType" D.string)
+    (D.field "start" D.string)
+    (D.field "finish" D.string)
+  |> D.list
+
+getJobs : Cmd Msg
+getJobs =
   Http.get
-    { url = "http://localhost:4200/test.json"
-    , expect = Http.expectJson GotFooBar decoder
+    { url = "http://localhost:4200/jobs.json"
+    , expect = Http.expectJson GotJobs jobDecoder
     }
 
 type Msg
   = GotBoundary (Result BD.Error Element)
   | OnPageResize
-  | FetchFooBar
-  | GotFooBar (Result Http.Error FooBar)
+  | FetchJobs
+  | GotJobs (Result Http.Error (List JobEntity))
 
 type alias Model =
   { aspectRatio : Float
@@ -86,17 +101,20 @@ update msg model =
   case msg of
     OnPageResize ->
       (model, getBoundary)
-    FetchFooBar ->
-      (model, getFooBar)
-    GotFooBar result ->
+    FetchJobs ->
+      (model, getJobs)
+    GotJobs result ->
       case result of
         Ok value ->
           let
               _ = Debug.log "val" value
           in
             (model, Cmd.none)
-        Err _ ->
-          (model, Cmd.none)
+        Err err ->
+          let
+              _ = Debug.log "err" err
+          in
+            (model, Cmd.none)
     GotBoundary v ->
       let
         w = viewportWidth v
@@ -113,9 +131,9 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-  div [class "test", onClick FetchFooBar] [
+  div [class "test", onClick FetchJobs] [
     GL.toHtml
-      [ id "viewport"
+      [ Attr.id "viewport"
       , width <| truncate model.viewportWidth
       , height <| truncate model.viewportHeight
       , style "display" "block"
