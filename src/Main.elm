@@ -10,40 +10,12 @@ import WebGL as GL exposing (Entity, Mesh, Shader)
 import Math.Matrix4 as Mat4 exposing (Mat4)
 import Math.Vector3 as Vec3 exposing (vec3, Vec3)
 import Math.Vector2 as Vec3 exposing (vec2, Vec2)
-import Json.Decode as D
 import Task
 import String as Str
 import Http
+import Job exposing (JobEntity)
 
-type alias FooBar =
-  { name : String }
 
-type alias JobEntity =
-  { id : Int
-  , jobId : Maybe Int
-  , workerId : Int
-  , jobType : String
-  , start : String
-  , finish : String
-  }
-
-jobDecoder : D.Decoder (List JobEntity)
-jobDecoder =
-  D.map6 JobEntity
-    (D.field "id" D.int)
-    (D.field "jobId" (D.maybe D.int))
-    (D.field "workerId" D.int)
-    (D.field "jobType" D.string)
-    (D.field "start" D.string)
-    (D.field "finish" D.string)
-  |> D.list
-
-getJobs : Cmd Msg
-getJobs =
-  Http.get
-    { url = "http://localhost:4200/jobs.json"
-    , expect = Http.expectJson GotJobs jobDecoder
-    }
 
 type Msg
   = GotBoundary (Result BD.Error Element)
@@ -102,7 +74,7 @@ update msg model =
     OnPageResize ->
       (model, getBoundary)
     FetchJobs ->
-      (model, getJobs)
+      (model, Job.list GotJobs)
     GotJobs result ->
       case result of
         Ok value ->

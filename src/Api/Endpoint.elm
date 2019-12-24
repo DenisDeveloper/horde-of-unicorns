@@ -1,7 +1,8 @@
-module Api.Endpoint exposing (Endpoint, request, jobs)
+module Api.Endpoint exposing (Endpoint, request, jobs, get)
 
 import Http
 import Url.Builder exposing (QueryParameter)
+import Json.Decode as D exposing (Decoder)
 
 type Endpoint
   = Endpoint String
@@ -37,5 +38,17 @@ url paths queryParams =
     queryParams
     |> Endpoint
 
+get : Endpoint -> (Result Http.Error a -> msg) -> Decoder a -> Cmd msg
+get endpointUrl msg decoder =
+  request
+    { method = "GET"
+    , url = endpointUrl
+    , expect = Http.expectJson msg decoder
+    , headers = []
+    , body = Http.emptyBody
+    , timeout = Nothing
+    , tracker = Nothing
+    }
+
 jobs : Endpoint
-jobs = url ["jobs"] []
+jobs = url ["jobs.json"] []
