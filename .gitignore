@@ -6,7 +6,7 @@ node_modules
 
 # develop
 .cache
-/elm-stuff
+elm-stuff
 
 # misc
 .DS_Store
