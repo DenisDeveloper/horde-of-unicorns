@@ -6,7 +6,7 @@ fs.readFile("input.json", "utf8", (err, data) => {
   let res = JSON.parse(data).map(job => {
     let start = ruDateToEn(job.start);
     let finish = ruDateToEn(job.finish);
-    return { ...job, start, finish };
+    return { ...job, start: Date.parse(start), finish: Date.parse(finish) };
   });
   fs.writeFile("jobs.json", JSON.stringify(res), err => {
     console.log("done");

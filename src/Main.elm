@@ -13,9 +13,10 @@ import Math.Vector2 as Vec3 exposing (vec2, Vec2)
 import Task
 import String as Str
 import Http
-import Job exposing (JobEntity)
-
-
+import Job exposing (JobEntity, Job)
+import Json.Encode as E
+import List as L exposing (map, minimum, maximum)
+import Maybe as M
 
 type Msg
   = GotBoundary (Result BD.Error Element)
@@ -68,6 +69,16 @@ aspectRatio : Float -> Float -> Float
 aspectRatio w h =
   (min w h) / (max w h)
 
+
+minJob =
+  minimum << map .start
+
+maxJob =
+  maximum << map .finish
+
+-- prepare xs =
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
@@ -77,9 +88,11 @@ update msg model =
       (model, Job.list GotJobs)
     GotJobs result ->
       case result of
-        Ok value ->
+        Ok xs ->
           let
-              _ = Debug.log "val" value
+              _ = Debug.log "val" (minJob xs)
+              ratio = M.map2 (-) (maxJob xs)  (minJob xs)
+              _ = Debug.log "ratio " ratio
           in
             (model, Cmd.none)
         Err err ->

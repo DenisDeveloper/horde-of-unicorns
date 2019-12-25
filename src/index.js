@@ -1,3 +1,8 @@
 import { Elm } from "./Main.elm";
 
-Elm.Main.init({ node: document.getElementById("root") });
+var app = Elm.Main.init({ node: document.getElementById("root") });
+
+// app.ports.toJs.subscribe(v => {
+//   console.log(v);
+//   app.ports.toElm.send(JSON.stringify(Date.parse(v)));
+// });

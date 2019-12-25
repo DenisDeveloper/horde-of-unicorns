@@ -1,8 +1,8 @@
-module Job exposing (JobEntity, list)
+module Job exposing (JobEntity, Job, list)
 
 import Api.Endpoint as Api
 import Http
-import Json.Decode as D exposing (Decoder)
+import Json.Decode as D exposing (Decoder, field)
 
 
 type alias JobEntity =
@@ -10,19 +10,24 @@ type alias JobEntity =
   , jobId : Maybe Int
   , workerId : Int
   , jobType : String
-  , start : String
-  , finish : String
+  , start : Int
+  , finish : Int
+  }
+
+type alias Job =
+  { x : Float
+  , y : Float
   }
 
 jobDecoder : D.Decoder JobEntity
 jobDecoder =
   D.map6 JobEntity
-    (D.field "id" D.int)
-    (D.field "jobId" (D.maybe D.int))
-    (D.field "workerId" D.int)
-    (D.field "jobType" D.string)
-    (D.field "start" D.string)
-    (D.field "finish" D.string)
+    (field "id" D.int)
+    (field "jobId" (D.maybe D.int))
+    (field "workerId" D.int)
+    (field "jobType" D.string)
+    (field "start" D.int)
+    (field "finish" D.int)
 
 list : (Result Http.Error (List JobEntity) -> msg) -> Cmd msg
 list msg =
