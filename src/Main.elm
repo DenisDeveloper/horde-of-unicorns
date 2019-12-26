@@ -78,6 +78,8 @@ maxJob =
 
 -- prepare xs =
 
+normalize =
+  M.map ((/) 1) << M.map toFloat
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -90,8 +92,11 @@ update msg model =
       case result of
         Ok xs ->
           let
-              _ = Debug.log "val" (minJob xs)
-              ratio = M.map2 (-) (maxJob xs)  (minJob xs)
+              timeRange = M.map2 (-) (maxJob xs)  (minJob xs)
+              ratio = normalize timeRange
+              f = M.map ((/) model.viewportWidth) <| M.map toFloat timeRange
+              _ = Debug.log "f" f
+              _ = Debug.log "time range " timeRange
               _ = Debug.log "ratio " ratio
           in
             (model, Cmd.none)
