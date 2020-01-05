@@ -15,8 +15,7 @@ type alias JobEntity =
   }
 
 type alias Job =
-  { x : Float
-  , y : Float
+  { x : Maybe Float
   }
 
 jobDecoder : D.Decoder JobEntity

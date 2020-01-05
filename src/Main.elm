@@ -18,6 +18,15 @@ import Json.Encode as E
 import List as L exposing (map, minimum, maximum)
 import Maybe as M
 
+viewport = "viewport"
+
+type alias HttpError = Http.Error
+type alias DomError = BD.Error
+
+type Error
+  = HttpError
+  | DomError
+
 type Msg
   = GotBoundary (Result BD.Error Element)
   | OnPageResize
@@ -28,16 +37,23 @@ type alias Model =
   { aspectRatio : Float
   , viewportWidth: Float
   , viewportHeight: Float
+  , error : List String
   }
 
+-- errorHandler : error -> String
+-- errorHandler e =
+--   case e of
+
+
 getBoundary =
-  Task.attempt GotBoundary <| getElement "viewport"
+  Task.attempt GotBoundary <| getElement viewport
 
 initModel : Model
 initModel =
     { aspectRatio = 0.0
     , viewportWidth = 0.0
     , viewportHeight = 0.0
+    , error = []
     }
 
 main : Program () Model Msg
@@ -70,13 +86,20 @@ aspectRatio w h =
   (min w h) / (max w h)
 
 
+minJob : List JobEntity -> Maybe Int
 minJob =
   minimum << map .start
 
+maxJob : List JobEntity -> Maybe Int
 maxJob =
   maximum << map .finish
 
--- prepare xs =
+prepare : List JobEntity -> Maybe Float -> List Job
+prepare xs ratio=
+  let
+    f v = { x = M.map (\r -> (toFloat v.start) * r) ratio }
+  in
+    map f xs
 
 normalize =
   M.map ((/) 1) << M.map toFloat
@@ -92,19 +115,18 @@ update msg model =
       case result of
         Ok xs ->
           let
-              timeRange = M.map2 (-) (maxJob xs)  (minJob xs)
-              ratio = normalize timeRange
-              f = M.map ((/) model.viewportWidth) <| M.map toFloat timeRange
-              _ = Debug.log "f" f
-              _ = Debug.log "time range " timeRange
-              _ = Debug.log "ratio " ratio
+            start = minJob xs
+            end = maxJob xs
+            timeRange = M.map2 (-) end start
+            ratio = normalize timeRange
+            j = prepare xs ratio
+              -- f = M.map ((/) model.viewportWidth) <| M.map toFloat timeRange
+            _ = Debug.log "j" j
+            -- _ = Debug.log "time range " timeRange
+            -- _ = Debug.log "ratio " ratio
           in
             (model, Cmd.none)
-        Err err ->
-          let
-              _ = Debug.log "err" err
-          in
-            (model, Cmd.none)
+        Err err -> (model, Cmd.none)
     GotBoundary v ->
       let
         w = viewportWidth v
@@ -123,7 +145,7 @@ view : Model -> Html Msg
 view model =
   div [class "test", onClick FetchJobs] [
     GL.toHtml
-      [ Attr.id "viewport"
+      [ Attr.id viewport
       , width <| truncate model.viewportWidth
       , height <| truncate model.viewportHeight
       , style "display" "block"
