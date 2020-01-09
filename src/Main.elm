@@ -3,13 +3,9 @@ module Main exposing (main)
 import Browser as B
 import Browser.Dom as BD exposing (Viewport, Element, getViewportOf, getViewport, getElement)
 import Browser.Events exposing (onAnimationFrameDelta, onResize)
-import Html exposing (Html, div)
+import Html exposing (Html, div, text)
 import Html.Attributes as Attr exposing (width, height, style, class)
 import Html.Events exposing (onClick)
-import WebGL as GL exposing (Entity, Mesh, Shader)
-import Math.Matrix4 as Mat4 exposing (Mat4)
-import Math.Vector3 as Vec3 exposing (vec3, Vec3)
-import Math.Vector2 as Vec3 exposing (vec2, Vec2)
 import Task
 import String as Str
 import Http
@@ -17,6 +13,8 @@ import Job exposing (JobEntity, Job)
 import Json.Encode as E
 import List as L exposing (map, minimum, maximum)
 import Maybe as M
+
+import ClusterGenerator as Cluster
 
 viewport = "viewport"
 
@@ -44,6 +42,15 @@ type alias Model =
 -- errorHandler e =
 --   case e of
 
+mock =
+  [ { start = 0, end = 9, content = "item 0", center = 4.5 }
+  , { start = 10, end = 7, content = "item 1", center = 8.5 }
+  , { start = 16, end = 9, content = "item 2", center = 12.5 }
+  , { start = 18, end = 6, content = "item 3", center = 12 }
+  , { start = 52, end = 2, content = "item 4", center = 27 }
+  , { start = 50, end = 6, content = "item 5", center = 28 }
+  , { start = 66, end = 4, content = "item 6", center = 35 }
+  ]
 
 getBoundary =
   Task.attempt GotBoundary <| getElement viewport
@@ -58,12 +65,15 @@ initModel =
 
 main : Program () Model Msg
 main =
-  B.element
-    { init = \_ -> (initModel, getBoundary)
-    , update = update
-    , subscriptions = subscriptions
-    , view = view
-    }
+  let
+    _ = Debug.log "clusters" (Cluster.generate 2 mock)
+  in
+    B.element
+      { init = \_ -> (initModel, getBoundary)
+      , update = update
+      , subscriptions = subscriptions
+      , view = view
+      }
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
@@ -143,111 +153,4 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-  div [class "test", onClick FetchJobs] [
-    GL.toHtml
-      [ Attr.id viewport
-      , width <| truncate model.viewportWidth
-      , height <| truncate model.viewportHeight
-      , style "display" "block"
-      , style "width" "100%"
-      , style "height" "800px"
-      ]
-      [ (grid (800 / 1400)) ]
-  ]
-
-type alias Bar =
-  { x : Float
-  , y : Float
-  , w : Float
-  , h : Float
-  }
-
-bar2 x y w h =
-  {x = x, y = y, w = w, h = h}
-
-addBar b xs =
-  let
-    {x, y, w, h} = b
-  in
-    (tr1 x y w h) :: (tr2 x y w h) :: xs
-
-bars = []
-
-
-
--- perspective : Float -> Mat4
--- perspective t =
---   Mat4.mul
---     (Mat4.makePerspective 45 1 0.01 100)
---     (Mat4.makeLookAt (vec3 (4 * cos t) 0 (4 * sin t)) (vec3 0 0 0) (vec3 0 1 0))
-
--- perspective : Float -> Mat4
--- perspective t =
---   Mat4.mul
---     ()
-
-type alias Vertex =
-  { position : Vec2
-  , color : Vec3
-  }
-
-type alias Varying =
-  { vColor : Vec3}
-
-grid : Float -> Entity
-grid ratio =
-  GL.entity
-    vertexShader
-    fragmentShader
-    (makeGrid ratio)
-    {perspective = (Mat4.makeOrtho2D 0 1 1 0)}
-
-tr1 x y w h =
-  ( ( Vertex (vec2 x y) (vec3 0 0 1) )
-  , ( Vertex (vec2 (x + w) y) (vec3 0 0 1) )
-  , ( Vertex (vec2 x (y + h)) (vec3 0 0 1) )
-  )
-
-tr2 x y w h =
-  ( ( Vertex (vec2 x (y + h)) (vec3 0 0 1) )
-  , ( Vertex (vec2 (x + w) y) (vec3 0 0 1) )
-  , ( Vertex (vec2 (x + w) (y + h)) (vec3 0 0 1) )
-  )
-
-makeGrid : Float -> Mesh Vertex
-makeGrid ratio =
-  let
-    _ =
-      Debug.log "rect "
-    bb = (addBar (bar2 0 0 (1 * ratio) 1) bars)
-  in
-    GL.triangles bb
-
-type alias Uniforms =
-  {perspective : Mat4}
-
-vertexShader : Shader Vertex Uniforms Varying
-vertexShader =
-  [glsl|
-    precision mediump float;
-    attribute vec2 position;
-    attribute vec3 color;
-    uniform mat4 perspective;
-    varying vec3 vColor;
-
-    void main () {
-      gl_Position = perspective * vec4(position, 0.0, 1.0);
-      vColor = color;
-    }
-  |]
-
-fragmentShader : Shader {} Uniforms Varying
-fragmentShader =
-  [glsl|
-    precision mediump float;
-    varying vec3 vColor;
-
-    void main () {
-      gl_FragColor = vec4(vColor, 1.0);
-    }
-  |]
+  div [class "test", onClick FetchJobs] [ text "2" ]

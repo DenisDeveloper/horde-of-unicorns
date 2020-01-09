@@ -1,4 +1,4 @@
-module Job exposing (JobEntity, Job, list)
+module Job exposing (DisplayJob, JobEntity, Job, list)
 
 import Api.Endpoint as Api
 import Http
@@ -12,6 +12,13 @@ type alias JobEntity =
   , jobType : String
   , start : Int
   , finish : Int
+  }
+
+type alias DisplayJob =
+  { start : Int
+  , end : Int
+  , content : String
+  , center : Float
   }
 
 type alias Job =
