@@ -13,6 +13,7 @@ import Job exposing (JobEntity, Job)
 import Json.Encode as E
 import List as L exposing (map, minimum, maximum)
 import Maybe as M
+import Array as A
 
 import ClusterGenerator as Cluster
 
@@ -66,7 +67,7 @@ initModel =
 main : Program () Model Msg
 main =
   let
-    _ = Debug.log "clusters" (Cluster.generate 2 mock)
+    _ = Debug.log "clusters" (Cluster.generate 2 <| A.fromList mock)
   in
     B.element
       { init = \_ -> (initModel, getBoundary)

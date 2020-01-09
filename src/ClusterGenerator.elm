@@ -1,6 +1,7 @@
 module ClusterGenerator exposing (generate)
 
 import List as L
+import Array as A exposing (Array)
 import Job exposing (DisplayJob)
 
 type alias Scale = Float
@@ -33,63 +34,62 @@ while p f v =
   then while p f (f v)
   else v
 
-nth n =
-  L.head << L.drop n
-
 -- addCluster
 
-getClusters : Int -> TimeWindow -> Neighbors -> List DisplayJob -> Int
+getClusters : Int -> TimeWindow -> Neighbors -> Array DisplayJob -> Int
 getClusters i tw n xs =
   let
-    item = nth i xs
+    item = A.get i xs
+    _ = Debug.log "item" i
     neighbors =
       case item of
         Just v ->
           if (i - 1) >= 0
-          then scanToRight v.center tw (scanToLeft v.center tw n <| L.take i xs) xs
-          else scanToRight v.center tw n xs
+          then scanToRight v.center tw (scanToLeft v.center tw n <| A.slice 0 i xs) xs
+          else scanToRight v.center tw n <| A.slice (i + 1) (A.length xs) xs
         Nothing -> n
     -- num =
     -- _ = Debug.log "nth" f
-    _ = Debug.log "fff"
-      ()
+    _ = Debug.log "neighbors" neighbors
   in
     if neighbors > 1 then neighbors + i
     else (i + 1)
 
 
 -- loopl j c1 c2 w
-scanToLeft : Float -> TimeWindow -> Neighbors -> List DisplayJob -> Neighbors
+scanToLeft : Float -> TimeWindow -> Neighbors -> Array DisplayJob -> Neighbors
 scanToLeft c tw n xs =
   let
+    -- _ = Debug.log "scaltoleft" c
     scan item acc =
       if c - item.center < (toFloat tw) / 2
       then acc + 1
       else acc
   in
-    L.foldr scan n xs
+    A.foldr scan n xs
 
-scanToRight : Float -> TimeWindow -> Neighbors -> List DisplayJob -> Neighbors
+scanToRight : Float -> TimeWindow -> Neighbors -> Array DisplayJob -> Neighbors
 scanToRight c tw n xs =
   let
+    _ = Debug.log "scanToRight" c
     scan item acc =
-      if item.center - c < (toFloat tw) / 2
-      then acc + 1
-      else acc
+      let
+        _ = Debug.log "it1" (item.center - c)
+        _ = Debug.log "it2" ((toFloat tw) / 2)
+      in
+        if item.center - c < (toFloat tw) / 2
+        then acc + 1
+        else acc
   in
-    L.foldl scan n xs
+    A.foldl scan n xs
 
-fact n =
-  case n of
-    0 -> 1
-    _ -> n * fact (n - 1)
-
-
-generate : Scale -> List DisplayJob -> Int
+generate : Scale -> Array DisplayJob -> Int
 generate s xs =
   let
     -- _ = Debug.log "loop" (getTimeWindow s granularity)
-    len = L.length xs
+    len = A.length xs
+    _ = Debug.log "len" len
+    -- ghh = (1, 2, 4, 5, 6)
     -- (_, ff) = getClusters
     timeWindow = getTimeWindow s 2
     _ = Debug.log "while"
