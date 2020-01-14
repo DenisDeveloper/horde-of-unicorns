@@ -1,7 +1,7 @@
 module ClusterGenerator exposing (generate)
 
 import List as L
-import Array as A exposing (Array)
+import Array as A exposing (Array, foldl, slice, length)
 import Job exposing (DisplayJob)
 
 type alias Scale = Float
@@ -34,7 +34,52 @@ while p f v =
   then while p f (f v)
   else v
 
+appendItems : (a -> Bool) -> (a -> a) -> a -> a
+appendItems p f v =
+  if p v
+  then while p f (f v)
+  else v
 -- addCluster
+
+arr = A.fromList [4, 5, 9, 10, 40, 50, 56]
+
+sdam : Array Float -> Float
+sdam xs =
+  let mean = foldl (+) 0 xs / (toFloat <| length xs)
+  in foldl (\x sum -> sum + (x - mean) ^ 2) 0 xs
+
+sdcm n xs =
+  let (left, right) = splitArray n xs
+  in (sdam left) + (sdam right)
+
+splitArray n xs =
+  (slice 0 n xs, slice n (length xs) xs)
+
+gvf xs =
+  let
+    init = (sdcm 1 xs, 0)
+    iter n v =
+      let
+        (val, idx) = v
+        sdcmVal = (sdcm n xs)
+        res = if sdcmVal < val
+              then (sdcmVal, n)
+              else v
+      in
+        if n < (length xs) - 1
+        then iter (n + 1) res
+        else Tuple.second v
+  in iter 1 init
+
+gen l xs =
+  let
+    init = gvf
+    iter n =
+      if (n < l)
+      then iter (n + 1)
+      else n
+  in
+    iter 0
 
 getClusters : Int -> TimeWindow -> Neighbors -> Array DisplayJob -> Int
 getClusters i tw n xs =
@@ -58,28 +103,20 @@ getClusters i tw n xs =
 
 -- loopl j c1 c2 w
 scanToLeft : Float -> TimeWindow -> Neighbors -> Array DisplayJob -> Neighbors
-scanToLeft c tw n xs =
-  let
-    -- _ = Debug.log "scaltoleft" c
-    scan item acc =
-      if c - item.center < (toFloat tw) / 2
-      then acc + 1
-      else acc
-  in
-    A.foldr scan n xs
+scanToLeft c tw =
+  (\it acc ->
+    if c - it.center < (toFloat tw) / 2
+    then acc + 1
+    else acc)
+  |> A.foldr
 
 scanToRight : Float -> TimeWindow -> Neighbors -> Array DisplayJob -> Neighbors
 scanToRight c tw n xs =
   let
-    _ = Debug.log "scanToRight" c
     scan item acc =
-      let
-        _ = Debug.log "it1" (item.center - c)
-        _ = Debug.log "it2" ((toFloat tw) / 2)
-      in
-        if item.center - c < (toFloat tw) / 2
-        then acc + 1
-        else acc
+      if item.center - c < (toFloat tw) / 2
+      then acc + 1
+      else acc
   in
     A.foldl scan n xs
 
@@ -88,7 +125,11 @@ generate s xs =
   let
     -- _ = Debug.log "loop" (getTimeWindow s granularity)
     len = A.length xs
-    _ = Debug.log "len" len
+    -- _ = Debug.log "len" len
+    -- _ = Debug.log "gvf" (gvf arr)
+    _ = Debug.log "gen" (gen 4 arr)
+    -- _ = Debug.log "split" (splitArray 2 arr)
+    -- _ = Debug.log "sdam" (sdam arr)
     -- ghh = (1, 2, 4, 5, 6)
     -- (_, ff) = getClusters
     timeWindow = getTimeWindow s 2
