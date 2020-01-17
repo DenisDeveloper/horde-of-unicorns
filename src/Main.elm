@@ -1,9 +1,9 @@
 module Main exposing (main)
 
 import Browser as B
-import Browser.Dom as BD exposing (Viewport, Element, getViewportOf, getViewport, getElement)
+import Browser.Dom as Dom exposing (Viewport, Element, getViewportOf, getViewport, getElement)
 import Browser.Events exposing (onAnimationFrameDelta, onResize)
-import Html exposing (Html, div, text)
+import Html as H exposing (Html, div, text)
 import Html.Attributes as Attr exposing (width, height, style, class)
 import Html.Events exposing (onClick)
 import Task
@@ -15,43 +15,25 @@ import List as L exposing (map, minimum, maximum)
 import Maybe as M
 import Array as A
 
+import AppModel exposing (Model)
+import AppMsg exposing (Msg(..))
+
 import ClusterGenerator as Cluster
 
-viewport = "viewport"
+import TimeTable as TT
+
+viewport = "time-table-view"
 
 type alias HttpError = Http.Error
-type alias DomError = BD.Error
+type alias DomError = Dom.Error
 
 type Error
   = HttpError
   | DomError
 
-type Msg
-  = GotBoundary (Result BD.Error Element)
-  | OnPageResize
-  | FetchJobs
-  | GotJobs (Result Http.Error (List JobEntity))
-
-type alias Model =
-  { aspectRatio : Float
-  , viewportWidth: Float
-  , viewportHeight: Float
-  , error : List String
-  }
-
 -- errorHandler : error -> String
 -- errorHandler e =
 --   case e of
-
-mock =
-  [ { start = 0, end = 9, content = "item 0", center = 4.5 }
-  , { start = 10, end = 7, content = "item 1", center = 8.5 }
-  , { start = 16, end = 9, content = "item 2", center = 12.5 }
-  , { start = 18, end = 6, content = "item 3", center = 12 }
-  , { start = 52, end = 2, content = "item 4", center = 27 }
-  , { start = 50, end = 6, content = "item 5", center = 28 }
-  , { start = 66, end = 4, content = "item 6", center = 35 }
-  ]
 
 getBoundary =
   Task.attempt GotBoundary <| getElement viewport
@@ -67,7 +49,7 @@ initModel =
 main : Program () Model Msg
 main =
   let
-    _ = Debug.log "clusters" (Cluster.generate 2 <| A.fromList mock)
+    _ = Debug.log "clusters" "main"
   in
     B.element
       { init = \_ -> (initModel, getBoundary)
@@ -80,17 +62,21 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
   onResize (\_ _ -> OnPageResize)
 
-viewportWidth : Result BD.Error Element -> Float
+getWidth = .width << .element
+
+viewportWidth : Result Dom.Error Element -> Float
 viewportWidth v =
   case v of
     Err err -> 0
-    Ok value ->  .width <| .element value
+    Ok value ->  getWidth value
 
-viewportHeight : Result BD.Error Element -> Float
+getHeight = .height << .element
+
+viewportHeight : Result Dom.Error Element -> Float
 viewportHeight v =
   case v of
     Err err -> 0
-    Ok value ->  .height <| .element value
+    Ok value -> getHeight value -- .height <| .element value
 
 aspectRatio : Float -> Float -> Float
 aspectRatio w h =
@@ -121,7 +107,11 @@ update msg model =
     OnPageResize ->
       (model, getBoundary)
     FetchJobs ->
-      (model, Job.list GotJobs)
+      let
+        _ = Debug.log "fetch jobs" "!"
+      in
+      (model, Cmd.none)
+      -- (model, Job.list GotJobs)
     GotJobs result ->
       case result of
         Ok xs ->
@@ -154,4 +144,10 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-  div [class "test", onClick FetchJobs] [ text "2" ]
+  div [Attr.id "root", onClick FetchJobs]
+  [ H.header [] []
+  , H.main_ []
+    [ H.aside [] []
+    , TT.view model
+    , H.aside [] []]
+  , H.footer [] []]

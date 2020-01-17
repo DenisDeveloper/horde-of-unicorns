@@ -1,7 +1,7 @@
-module ClusterGenerator exposing (generate)
+module ClusterGenerator exposing (generate, updateNth)
 
 import List as L
-import Array as A exposing (Array, foldl, slice, length)
+import Array as A exposing (Array, foldl, indexedMap, slice, length)
 import Job exposing (DisplayJob)
 
 type alias Scale = Float
@@ -55,6 +55,11 @@ sdcm n xs =
 splitArray n xs =
   (slice 0 n xs, slice n (length xs) xs)
 
+when p f v =
+  if p v
+  then f v
+  else v
+
 gvf xs =
   let
     init = (sdcm 1 xs, 0)
@@ -71,15 +76,42 @@ gvf xs =
         else Tuple.second v
   in iter 1 init
 
+
+gvf2 xs =
+  let
+    init = (sdcm 1 xs, 0)
+    iter n v =
+      let
+        -- (val, idx) = v
+        sdcmVal = (sdcm n xs)
+        res = (sdcmVal, n) :: v
+      in
+        if n < (length xs) - 1
+        then iter (n + 1) res
+        else L.reverse v
+  in iter 1 [init]
+
+updateNth : (b -> b) -> Int -> Array b -> Array b
+updateNth f n =
+  (\i x -> if i == n then f x else x)
+  |> indexedMap
+
 gen l xs =
   let
-    init = gvf
-    iter n =
-      if (n < l)
-      then iter (n + 1)
-      else n
-  in
-    iter 0
+    init = (gvf xs)
+    iter n v acc =
+      let
+        (left, right) = splitArray v xs
+        leftGvf = gvf left
+        rightGvf = gvf right
+        -- splits = A.map (\x -> ) acc
+        -- _ = Debug.log "split" (splitArray v xs)
+      in
+        if (n < l)
+        then iter (n + 1) v acc
+        -- then iter (n + 1) v
+        else acc
+  in iter 0 init (A.fromList [init])
 
 getClusters : Int -> TimeWindow -> Neighbors -> Array DisplayJob -> Int
 getClusters i tw n xs =
@@ -126,8 +158,10 @@ generate s xs =
     -- _ = Debug.log "loop" (getTimeWindow s granularity)
     len = A.length xs
     -- _ = Debug.log "len" len
-    -- _ = Debug.log "gvf" (gvf arr)
-    _ = Debug.log "gen" (gen 4 arr)
+    ggg =L.sort <| L.map Tuple.first (gvf2 arr)
+    _ = Debug.log "gvf" (gvf2 arr)
+    _ = Debug.log "gvf_" (ggg)
+    -- _ = Debug.log "gen" (gen 5 arr)
     -- _ = Debug.log "split" (splitArray 2 arr)
     -- _ = Debug.log "sdam" (sdam arr)
     -- ghh = (1, 2, 4, 5, 6)
