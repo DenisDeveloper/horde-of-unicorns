@@ -34,6 +34,12 @@ body,
     .time-table {
       flex: 1;
       border: 2px solid $gray;
+
+      .axis {
+        font-family: arial;
+        // font-family: sans-serif;
+        font-size: 14px;
+      }
     }
   }
 

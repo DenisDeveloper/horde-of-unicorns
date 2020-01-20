@@ -13,6 +13,8 @@ var app = Elm.Main.init({ node: document.getElementById("root") });
 //   return { offset, factor };
 // };
 
+const s = 1516306657000;
+const e = 1579378808000;
 
 const recalcConversion = (start, end, contentWidth) => {
   let offset = start;
@@ -20,7 +22,8 @@ const recalcConversion = (start, end, contentWidth) => {
   return { offset, factor };
 };
 
-let c = recalcConversion(1516306657000, 1579378808000, 1209);
+let c = recalcConversion(s, e, 1678);
+console.log("calc js", c);
 
 const screenToTime = (x, conversion) => {
   return new Date(x / conversion.factor + conversion.offset);
@@ -30,40 +33,39 @@ const timeToScreen = (ms, conversion) => {
   return (ms - conversion.offset) * conversion.factor;
 };
 
-const getDataRange = (withMargin) => {
-    var items = this.items,
-        min = undefined, // number
-        max = undefined; // number
-
-    if (items) {
-        for (var i = 0, iMax = items.length; i < iMax; i++) {
-            var item = items[i],
-                start = item.start != undefined ? item.start.valueOf() : undefined,
-                end   = item.end != undefined   ? item.end.valueOf() : start;
-
-            if (start != undefined) {
-                min = (min != undefined) ? Math.min(min.valueOf(), start.valueOf()) : start;
-            }
-
-            if (end != undefined) {
-                max = (max != undefined) ? Math.max(max.valueOf(), end.valueOf()) : end;
-            }
-        }
-    }
-
-    if (min && max && withMargin) {
-        // zoom out 5% such that you have a little white space on the left and right
-        var diff = (max - min);
-        min = min - diff * 0.05;
-        max = max + diff * 0.05;
-    }
-
-    return {
-        'min': min != undefined ? new Date(min) : undefined,
-        'max': max != undefined ? new Date(max) : undefined
-    };
-};
-
+// const getDataRange = (withMargin) => {
+//     var items = this.items,
+//         min = undefined, // number
+//         max = undefined; // number
+//
+//     if (items) {
+//         for (var i = 0, iMax = items.length; i < iMax; i++) {
+//             var item = items[i],
+//                 start = item.start != undefined ? item.start.valueOf() : undefined,
+//                 end   = item.end != undefined   ? item.end.valueOf() : start;
+//
+//             if (start != undefined) {
+//                 min = (min != undefined) ? Math.min(min.valueOf(), start.valueOf()) : start;
+//             }
+//
+//             if (end != undefined) {
+//                 max = (max != undefined) ? Math.max(max.valueOf(), end.valueOf()) : end;
+//             }
+//         }
+//     }
+//
+//     if (min && max && withMargin) {
+//         // zoom out 5% such that you have a little white space on the left and right
+//         var diff = (max - min);
+//         min = min - diff * 0.05;
+//         max = max + diff * 0.05;
+//     }
+//
+//     return {
+//         'min': min != undefined ? new Date(min) : undefined,
+//         'max': max != undefined ? new Date(max) : undefined
+//     };
+// };
 
 // .vis-time-axis .vis-text.vis-measure {
 //   position: absolute;
@@ -74,41 +76,46 @@ const getDataRange = (withMargin) => {
 //   visibility: hidden;
 // }
 
-const _calculateCharSize = () => {
-    // Note: We calculate char size with every redraw. Size may change, for
-    // example when any of the timelines parents had display:none for example.
-
-    // determine the char width and height on the minor axis
-    if (!this.dom.measureCharMinor) {
-      this.dom.measureCharMinor = document.createElement('DIV');
-      this.dom.measureCharMinor.className = 'vis-text vis-minor vis-measure';
-      this.dom.measureCharMinor.style.position = 'absolute';
-
-      this.dom.measureCharMinor.appendChild(document.createTextNode('0'));
-      this.dom.foreground.appendChild(this.dom.measureCharMinor);
-    }
-    this.props.minorCharHeight = this.dom.measureCharMinor.clientHeight;
-    this.props.minorCharWidth = this.dom.measureCharMinor.clientWidth;
-
-    // determine the char width and height on the major axis
-    if (!this.dom.measureCharMajor) {
-      this.dom.measureCharMajor = document.createElement('DIV');
-      this.dom.measureCharMajor.className = 'vis-text vis-major vis-measure';
-      this.dom.measureCharMajor.style.position = 'absolute';
-
-      this.dom.measureCharMajor.appendChild(document.createTextNode('0'));
-      this.dom.foreground.appendChild(this.dom.measureCharMajor);
-    }
-    this.props.majorCharHeight = this.dom.measureCharMajor.clientHeight;
-    this.props.majorCharWidth = this.dom.measureCharMajor.clientWidth;
-  }
-}
+// const _calculateCharSize = () => {
+//   // Note: We calculate char size with every redraw. Size may change, for
+//   // example when any of the timelines parents had display:none for example.
+//
+//   // determine the char width and height on the minor axis
+//   if (!this.dom.measureCharMinor) {
+//     this.dom.measureCharMinor = document.createElement("DIV");
+//     this.dom.measureCharMinor.className = "vis-text vis-minor vis-measure";
+//     this.dom.measureCharMinor.style.position = "absolute";
+//
+//     this.dom.measureCharMinor.appendChild(document.createTextNode("0"));
+//     this.dom.foreground.appendChild(this.dom.measureCharMinor);
+//   }
+//   this.props.minorCharHeight = this.dom.measureCharMinor.clientHeight;
+//   this.props.minorCharWidth = this.dom.measureCharMinor.clientWidth;
+//
+//   // determine the char width and height on the major axis
+//   if (!this.dom.measureCharMajor) {
+//     this.dom.measureCharMajor = document.createElement("DIV");
+//     this.dom.measureCharMajor.className = "vis-text vis-major vis-measure";
+//     this.dom.measureCharMajor.style.position = "absolute";
+//
+//     this.dom.measureCharMajor.appendChild(document.createTextNode("0"));
+//     this.dom.foreground.appendChild(this.dom.measureCharMajor);
+//   }
+//   this.props.majorCharHeight = this.dom.measureCharMajor.clientHeight;
+//   this.props.majorCharWidth = this.dom.measureCharMajor.clientWidth;
+// };
 
 // console.log(c);
 // console.log(screenToTime(0, c));
 // console.log(timeToScreen(1579378808000, c));
 
-const minimumStep = screenToTime(characterMinorWidth * 6) - screenToTime(0);
+// todo: calc char width
+const characterMinorWidth = 8;
+
+const minimumStep =
+  screenToTime(characterMinorWidth * 6, c) - screenToTime(0, c);
+
+// console.log(minimumStep);
 
 // if (size.axis.characterMinorWidth) {
 //     this.minimumStep = this.screenToTime(size.axis.characterMinorWidth * 6) -
@@ -117,23 +124,22 @@ const minimumStep = screenToTime(characterMinorWidth * 6) - screenToTime(0);
 //     step.setRange(start, end, this.minimumStep);
 // }
 
-
-let StepDate = (start, end, minimumStep) => {
-  // variables
-  // this.current = new Date();
-  // this._start = new Date();
-  // this._end = new Date();
-  //
-  // this.autoScale  = true;
-  // this.scale = links.Timeline.StepDate.SCALE.DAY;
-  // this.step = 1;
-
-  // initialize the range
-  setRange(start, end, minimumStep);
-};
+// let StepDate = (start, end, minimumStep) => {
+//   // variables
+//   // this.current = new Date();
+//   // this._start = new Date();
+//   // this._end = new Date();
+//   //
+//   // this.autoScale  = true;
+//   // this.scale = links.Timeline.StepDate.SCALE.DAY;
+//   // this.step = 1;
+//
+//   // initialize the range
+//   setRange(start, end, minimumStep);
+// };
 
 /// enum scale
-SCALE = {
+const SCALE = {
   MILLISECOND: 1,
   SECOND: 2,
   MINUTE: 3,
@@ -159,203 +165,268 @@ const setRange = (start, end, minimumStep) => {
 };
 
 const repaintAxis = () => {
-    var start = this.screenToTime(0);
-    var end = this.screenToTime(size.contentWidth);
+  var start = this.screenToTime(0);
+  var end = this.screenToTime(size.contentWidth);
 
-    // calculate minimum step (in milliseconds) based on character size
-    if (size.axis.characterMinorWidth) {
-        this.minimumStep = this.screenToTime(size.axis.characterMinorWidth * 6) -
-            this.screenToTime(0);
+  // calculate minimum step (in milliseconds) based on character size
+  if (size.axis.characterMinorWidth) {
+    this.minimumStep =
+      this.screenToTime(size.axis.characterMinorWidth * 6) -
+      this.screenToTime(0);
 
-        step.setRange(start, end, this.minimumStep);
+    step.setRange(start, end, this.minimumStep);
+  }
+
+  var charsNeedsReflow = this.repaintAxisCharacters();
+  needsReflow = needsReflow || charsNeedsReflow;
+
+  // The current labels on the axis will be re-used (much better performance),
+  // therefore, the repaintAxis method uses the mechanism with
+  // repaintAxisStartOverwriting, repaintAxisEndOverwriting, and
+  // this.size.axis.properties is used.
+  this.repaintAxisStartOverwriting();
+
+  step.start();
+  var xFirstMajorLabel = undefined;
+  var max = 0;
+  while (!step.end() && max < 1000) {
+    max++;
+    var cur = step.getCurrent(),
+      x = this.timeToScreen(cur),
+      isMajor = step.isMajor();
+
+    if (options.showMinorLabels) {
+      this.repaintAxisMinorText(x, step.getLabelMinor(options));
     }
 
-    var charsNeedsReflow = this.repaintAxisCharacters();
-    needsReflow = needsReflow || charsNeedsReflow;
-
-    // The current labels on the axis will be re-used (much better performance),
-    // therefore, the repaintAxis method uses the mechanism with
-    // repaintAxisStartOverwriting, repaintAxisEndOverwriting, and
-    // this.size.axis.properties is used.
-    this.repaintAxisStartOverwriting();
-
-    step.start();
-    var xFirstMajorLabel = undefined;
-    var max = 0;
-    while (!step.end() && max < 1000) {
-        max++;
-        var cur = step.getCurrent(),
-            x = this.timeToScreen(cur),
-            isMajor = step.isMajor();
-
-        if (options.showMinorLabels) {
-            this.repaintAxisMinorText(x, step.getLabelMinor(options));
+    if (isMajor && options.showMajorLabels) {
+      if (x > 0) {
+        if (xFirstMajorLabel == undefined) {
+          xFirstMajorLabel = x;
         }
-
-        if (isMajor && options.showMajorLabels) {
-            if (x > 0) {
-                if (xFirstMajorLabel == undefined) {
-                    xFirstMajorLabel = x;
-                }
-                this.repaintAxisMajorText(x, step.getLabelMajor(options));
-            }
-            this.repaintAxisMajorLine(x);
-        }
-        else {
-            this.repaintAxisMinorLine(x);
-        }
-
-        step.next();
+        this.repaintAxisMajorText(x, step.getLabelMajor(options));
+      }
+      this.repaintAxisMajorLine(x);
+    } else {
+      this.repaintAxisMinorLine(x);
     }
 
-    // create a major label on the left when needed
-    if (options.showMajorLabels) {
-        var leftTime = this.screenToTime(0),
-            leftText = this.step.getLabelMajor(options, leftTime),
-            width = leftText.length * size.axis.characterMajorWidth + 10; // upper bound estimation
+    step.next();
+  }
 
-        if (xFirstMajorLabel == undefined || width < xFirstMajorLabel) {
-            this.repaintAxisMajorText(0, leftText, leftTime);
-        }
+  // create a major label on the left when needed
+  if (options.showMajorLabels) {
+    var leftTime = this.screenToTime(0),
+      leftText = this.step.getLabelMajor(options, leftTime),
+      width = leftText.length * size.axis.characterMajorWidth + 10; // upper bound estimation
+
+    if (xFirstMajorLabel == undefined || width < xFirstMajorLabel) {
+      this.repaintAxisMajorText(0, leftText, leftTime);
     }
+  }
 
-    // cleanup left over labels
-    this.repaintAxisEndOverwriting();
+  // cleanup left over labels
+  this.repaintAxisEndOverwriting();
 
-    this.repaintAxisHorizontal();
+  this.repaintAxisHorizontal();
 
-    // put axis online
-    dom.content.insertBefore(axis.frame, dom.content.firstChild);
+  // put axis online
+  dom.content.insertBefore(axis.frame, dom.content.firstChild);
 
-    return needsReflow;
+  return needsReflow;
 };
 
-const start = () => {
-  // console.log("_start", this._start);
-    this.current = new Date(this._start.valueOf());
-    this.roundToMinor();
+const roundToMinor = (scale, step, current) => {
+  switch (scale) {
+    case SCALE.YEAR:
+      current.setFullYear(step * Math.floor(current.getFullYear() / step));
+      current.setMonth(0);
+    case SCALE.MONTH:
+      current.setDate(1);
+    case SCALE.DAY: // intentional fall through
+    case SCALE.WEEKDAY:
+      current.setHours(0);
+    case SCALE.HOUR:
+      current.setMinutes(0);
+    case SCALE.MINUTE:
+      current.setSeconds(0);
+    case SCALE.SECOND:
+      current.setMilliseconds(0);
+  }
+
+  if (step != 1) {
+    switch (scale) {
+      case SCALE.MILLISECOND:
+        current.setMilliseconds(
+          current.getMilliseconds() - (current.getMilliseconds() % step)
+        );
+        break;
+      case SCALE.SECOND:
+        current.setSeconds(
+          current.getSeconds() - (current.getSeconds() % step)
+        );
+        break;
+      case SCALE.MINUTE:
+        current.setMinutes(
+          current.getMinutes() - (current.getMinutes() % step)
+        );
+        break;
+      case SCALE.HOUR:
+        current.setHours(current.getHours() - (current.getHours() % step));
+        break;
+      case SCALE.WEEKDAY: // intentional fall through
+      case SCALE.DAY:
+        current.setDate(
+          current.getDate() - 1 - ((current.getDate() - 1) % step) + 1
+        );
+        break;
+      case SCALE.MONTH:
+        current.setMonth(current.getMonth() - (current.getMonth() % step));
+        break;
+      case SCALE.YEAR:
+        current.setFullYear(
+          current.getFullYear() - (current.getFullYear() % step)
+        );
+        break;
+      default:
+        break;
+    }
+  }
+  return current;
 };
 
-/**
- * Round the current date to the first minor date value
- * This must be executed once when the current date is set to start Date
- */
-const roundToMinor = () => {
-    // round to floor
-    // IMPORTANT: we have no breaks in this switch! (this is no bug)
-    //noinspection FallthroughInSwitchStatementJS
-    switch (this.scale) {
-        case links.Timeline.StepDate.SCALE.YEAR:
-            this.current.setFullYear(this.step * Math.floor(this.current.getFullYear() / this.step));
-            this.current.setMonth(0);
-        case links.Timeline.StepDate.SCALE.MONTH:        this.current.setDate(1);
-        case links.Timeline.StepDate.SCALE.DAY:          // intentional fall through
-        case links.Timeline.StepDate.SCALE.WEEKDAY:      this.current.setHours(0);
-        case links.Timeline.StepDate.SCALE.HOUR:         this.current.setMinutes(0);
-        case links.Timeline.StepDate.SCALE.MINUTE:       this.current.setSeconds(0);
-        case links.Timeline.StepDate.SCALE.SECOND:       this.current.setMilliseconds(0);
-        //case links.Timeline.StepDate.SCALE.MILLISECOND: // nothing to do for milliseconds
-    }
+const start = (scale, step, start) =>
+  roundToMinor(scale, step, new Date(start));
 
-    if (this.step != 1) {
-        // round down to the first minor value that is a multiple of the current step size
-        switch (this.scale) {
-            case links.Timeline.StepDate.SCALE.MILLISECOND:  this.current.setMilliseconds(this.current.getMilliseconds() - this.current.getMilliseconds() % this.step);  break;
-            case links.Timeline.StepDate.SCALE.SECOND:       this.current.setSeconds(this.current.getSeconds() - this.current.getSeconds() % this.step); break;
-            case links.Timeline.StepDate.SCALE.MINUTE:       this.current.setMinutes(this.current.getMinutes() - this.current.getMinutes() % this.step); break;
-            case links.Timeline.StepDate.SCALE.HOUR:         this.current.setHours(this.current.getHours() - this.current.getHours() % this.step); break;
-            case links.Timeline.StepDate.SCALE.WEEKDAY:      // intentional fall through
-            case links.Timeline.StepDate.SCALE.DAY:          this.current.setDate((this.current.getDate()-1) - (this.current.getDate()-1) % this.step + 1); break;
-            case links.Timeline.StepDate.SCALE.MONTH:        this.current.setMonth(this.current.getMonth() - this.current.getMonth() % this.step);  break;
-            case links.Timeline.StepDate.SCALE.YEAR:         this.current.setFullYear(this.current.getFullYear() - this.current.getFullYear() % this.step); break;
-            default: break;
-        }
-    }
+const end = (current, end) => {
+  return current > end;
 };
 
-/**
- * Check if the end date is reached
- * @return {boolean}  true if the current date has passed the end date
- */
-const end = () => {
-    return (this.current.valueOf() > this._end.valueOf());
+const next = (current, scale, step, end) => {
+  let prev = Date.parse(current);
+  let temp = new Date(current);
+  // console.log("next", current);
+  // Two cases, needed to prevent issues with switching daylight savings
+  // (end of March and end of October)
+  if (current.getMonth() < 6) {
+    // console.log("1");
+    switch (scale) {
+      case SCALE.MILLISECOND:
+        console.log("ms");
+        temp = new Date(current.valueOf() + step);
+        break;
+      case SCALE.SECOND:
+        console.log("sec");
+        temp = new Date(current.valueOf() + step * 1000);
+        break;
+      case SCALE.MINUTE:
+        console.log("minute");
+        temp = new Date(current.valueOf() + step * 1000 * 60);
+        break;
+      case SCALE.HOUR:
+        console.log("hour");
+        temp = new Date(current.valueOf() + step * 1000 * 60 * 60);
+        // in case of skipping an hour for daylight savings, adjust the hour again (else you get: 0h 5h 9h ... instead of 0h 4h 8h ...)
+        let h = temp.getHours();
+        temp.setHours(h - (h % step));
+        break;
+      case SCALE.WEEKDAY: // intentional fall through
+      case SCALE.DAY:
+        console.log("day");
+        temp.setDate(current.getDate() + step);
+        break;
+      case SCALE.MONTH:
+        // console.log("month");
+        temp.setMonth(current.getMonth() + step);
+        break;
+      case SCALE.YEAR:
+        console.log("year");
+        temp.setFullYear(current.getFullYear() + step);
+        break;
+      default:
+        break;
+    }
+  } else {
+    // console.log("2");
+    switch (scale) {
+      case SCALE.MILLISECOND:
+        temp = new Date(current.valueOf() + step);
+        break;
+      case SCALE.SECOND:
+        temp.setSeconds(current.getSeconds() + step);
+        break;
+      case SCALE.MINUTE:
+        temp.setMinutes(current.getMinutes() + step);
+        break;
+      case SCALE.HOUR:
+        temp.setHours(current.getHours() + step);
+        break;
+      case SCALE.WEEKDAY: // intentional fall through
+      case SCALE.DAY:
+        temp.setDate(current.getDate() + step);
+        break;
+      case SCALE.MONTH:
+        temp.setMonth(current.getMonth() + step);
+        break;
+      case SCALE.YEAR:
+        temp.setFullYear(current.getFullYear() + step);
+        break;
+      default:
+        break;
+    }
+  }
+
+  if (step != 1) {
+    // console.log("3");
+    // round down to the correct major value
+    switch (scale) {
+      case SCALE.MILLISECOND:
+        console.log("ms");
+        if (temp.getMilliseconds() < step) temp.setMilliseconds(0);
+        break;
+      case SCALE.SECOND:
+        console.log("sec");
+        if (temp.getSeconds() < step) temp.setSeconds(0);
+        break;
+      case SCALE.MINUTE:
+        console.log("minute");
+        if (temp.getMinutes() < step) temp.setMinutes(0);
+        break;
+      case SCALE.HOUR:
+        console.log("hour");
+        if (temp.getHours() < step) temp.setHours(0);
+        break;
+      case SCALE.WEEKDAY: // intentional fall through
+      case SCALE.DAY:
+        console.log("day");
+        if (temp.getDate() < step + 1) temp.setDate(1);
+        break;
+      case SCALE.MONTH:
+        // console.log("month");
+        if (temp.getMonth() < step) temp.setMonth(0);
+        break;
+      case SCALE.YEAR:
+        console.log("year");
+        break; // nothing to do for year
+      default:
+        break;
+    }
+  }
+
+  // safety mechanism: if current time is still unchanged, move to the end
+  if (temp.valueOf() == prev) {
+    temp = new Date(end.valueOf());
+  }
+  return temp;
 };
 
-/**
- * Do the next step
- */
-const next = () => {
-    var prev = this.current.valueOf();
-
-    // Two cases, needed to prevent issues with switching daylight savings
-    // (end of March and end of October)
-    if (this.current.getMonth() < 6)   {
-        switch (this.scale) {
-            case links.Timeline.StepDate.SCALE.MILLISECOND:
-
-                this.current = new Date(this.current.valueOf() + this.step); break;
-            case links.Timeline.StepDate.SCALE.SECOND:       this.current = new Date(this.current.valueOf() + this.step * 1000); break;
-            case links.Timeline.StepDate.SCALE.MINUTE:       this.current = new Date(this.current.valueOf() + this.step * 1000 * 60); break;
-            case links.Timeline.StepDate.SCALE.HOUR:
-                this.current = new Date(this.current.valueOf() + this.step * 1000 * 60 * 60);
-                // in case of skipping an hour for daylight savings, adjust the hour again (else you get: 0h 5h 9h ... instead of 0h 4h 8h ...)
-                var h = this.current.getHours();
-                this.current.setHours(h - (h % this.step));
-                break;
-            case links.Timeline.StepDate.SCALE.WEEKDAY:      // intentional fall through
-            case links.Timeline.StepDate.SCALE.DAY:          this.current.setDate(this.current.getDate() + this.step); break;
-            case links.Timeline.StepDate.SCALE.MONTH:        this.current.setMonth(this.current.getMonth() + this.step); break;
-            case links.Timeline.StepDate.SCALE.YEAR:         this.current.setFullYear(this.current.getFullYear() + this.step); break;
-            default:                      break;
-        }
-    }
-    else {
-        switch (this.scale) {
-            case links.Timeline.StepDate.SCALE.MILLISECOND:  this.current = new Date(this.current.valueOf() + this.step); break;
-            case links.Timeline.StepDate.SCALE.SECOND:       this.current.setSeconds(this.current.getSeconds() + this.step); break;
-            case links.Timeline.StepDate.SCALE.MINUTE:       this.current.setMinutes(this.current.getMinutes() + this.step); break;
-            case links.Timeline.StepDate.SCALE.HOUR:         this.current.setHours(this.current.getHours() + this.step); break;
-            case links.Timeline.StepDate.SCALE.WEEKDAY:      // intentional fall through
-            case links.Timeline.StepDate.SCALE.DAY:          this.current.setDate(this.current.getDate() + this.step); break;
-            case links.Timeline.StepDate.SCALE.MONTH:        this.current.setMonth(this.current.getMonth() + this.step); break;
-            case links.Timeline.StepDate.SCALE.YEAR:         this.current.setFullYear(this.current.getFullYear() + this.step); break;
-            default:                      break;
-        }
-    }
-
-    if (this.step != 1) {
-        // round down to the correct major value
-        switch (this.scale) {
-            case links.Timeline.StepDate.SCALE.MILLISECOND:  if(this.current.getMilliseconds() < this.step) this.current.setMilliseconds(0);  break;
-            case links.Timeline.StepDate.SCALE.SECOND:       if(this.current.getSeconds() < this.step) this.current.setSeconds(0);  break;
-            case links.Timeline.StepDate.SCALE.MINUTE:       if(this.current.getMinutes() < this.step) this.current.setMinutes(0);  break;
-            case links.Timeline.StepDate.SCALE.HOUR:         if(this.current.getHours() < this.step) this.current.setHours(0);  break;
-            case links.Timeline.StepDate.SCALE.WEEKDAY:      // intentional fall through
-            case links.Timeline.StepDate.SCALE.DAY:          if(this.current.getDate() < this.step+1) this.current.setDate(1); break;
-            case links.Timeline.StepDate.SCALE.MONTH:        if(this.current.getMonth() < this.step) this.current.setMonth(0);  break;
-            case links.Timeline.StepDate.SCALE.YEAR:         break; // nothing to do for year
-            default:                break;
-        }
-    }
-
-    // safety mechanism: if current time is still unchanged, move to the end
-    if (this.current.valueOf() == prev) {
-        this.current = new Date(this._end.valueOf());
-    }
-};
-
-
-/**
- * Automatically determine the scale that bests fits the provided minimum step
- * @param {Number} minimumStep  The minimum step size in milliseconds
- */
 const setMinimumStep = minimumStep => {
   if (minimumStep == undefined) {
     return;
   }
 
-  let scale = 0;
-  let step = 0;
+  let scale = SCALE.DAY;
+  let step = 1;
 
   let stepYear = 1000 * 60 * 60 * 24 * 30 * 12;
   let stepMonth = 1000 * 60 * 60 * 24 * 30;
@@ -367,118 +438,147 @@ const setMinimumStep = minimumStep => {
 
   // find the smallest step that is larger than the provided minimumStep
   if (stepYear * 1000 > minimumStep) {
+    console.log("1");
     scale = SCALE.YEAR;
     step = 1000;
   }
   if (stepYear * 500 > minimumStep) {
+    console.log("2");
     scale = SCALE.YEAR;
     step = 500;
   }
   if (stepYear * 100 > minimumStep) {
+    console.log("3");
     scale = SCALE.YEAR;
     step = 100;
   }
   if (stepYear * 50 > minimumStep) {
+    console.log("4");
     scale = SCALE.YEAR;
     step = 50;
   }
   if (stepYear * 10 > minimumStep) {
+    console.log("5");
     scale = SCALE.YEAR;
     step = 10;
   }
   if (stepYear * 5 > minimumStep) {
+    console.log("6");
     scale = SCALE.YEAR;
     step = 5;
   }
   if (stepYear > minimumStep) {
+    console.log("7");
     scale = SCALE.YEAR;
     step = 1;
   }
   if (stepMonth * 3 > minimumStep) {
+    console.log("8");
     scale = SCALE.MONTH;
     step = 3;
   }
   if (stepMonth > minimumStep) {
+    console.log("9");
     scale = SCALE.MONTH;
     step = 1;
   }
   if (stepDay * 5 > minimumStep) {
+    console.log("10");
     scale = SCALE.DAY;
     step = 5;
   }
   if (stepDay * 2 > minimumStep) {
+    console.log("11");
     scale = SCALE.DAY;
     step = 2;
   }
   if (stepDay > minimumStep) {
+    console.log("12");
     scale = SCALE.DAY;
     step = 1;
   }
   if (stepDay / 2 > minimumStep) {
+    console.log("13");
     scale = SCALE.WEEKDAY;
     step = 1;
   }
   if (stepHour * 4 > minimumStep) {
+    console.log("14");
     scale = SCALE.HOUR;
     step = 4;
   }
   if (stepHour > minimumStep) {
+    console.log("15");
     scale = SCALE.HOUR;
     step = 1;
   }
   if (stepMinute * 15 > minimumStep) {
+    console.log("16");
     scale = SCALE.MINUTE;
     step = 15;
   }
   if (stepMinute * 10 > minimumStep) {
+    console.log("17");
     scale = SCALE.MINUTE;
     step = 10;
   }
   if (stepMinute * 5 > minimumStep) {
+    console.log("18");
     scale = SCALE.MINUTE;
     step = 5;
   }
   if (stepMinute > minimumStep) {
+    console.log("19");
     scale = SCALE.MINUTE;
     step = 1;
   }
   if (stepSecond * 15 > minimumStep) {
+    console.log("20");
     scale = SCALE.SECOND;
     step = 15;
   }
   if (stepSecond * 10 > minimumStep) {
+    console.log("21");
     scale = SCALE.SECOND;
     step = 10;
   }
   if (stepSecond * 5 > minimumStep) {
+    console.log("22");
     scale = SCALE.SECOND;
     step = 5;
   }
   if (stepSecond > minimumStep) {
+    console.log("23");
     scale = SCALE.SECOND;
     step = 1;
   }
   if (stepMillisecond * 200 > minimumStep) {
+    console.log("24");
     scale = SCALE.MILLISECOND;
     step = 200;
   }
   if (stepMillisecond * 100 > minimumStep) {
+    console.log("25");
     scale = SCALE.MILLISECOND;
     step = 100;
   }
   if (stepMillisecond * 50 > minimumStep) {
+    console.log("26");
     scale = SCALE.MILLISECOND;
     step = 50;
   }
   if (stepMillisecond * 10 > minimumStep) {
+    console.log("27");
     scale = SCALE.MILLISECOND;
     step = 10;
   }
   if (stepMillisecond * 5 > minimumStep) {
+    console.log("28");
     scale = SCALE.MILLISECOND;
     step = 5;
   }
   if (stepMillisecond > minimumStep) {
+    console.log("29");
     scale = SCALE.MILLISECOND;
     step = 1;
   }
@@ -486,43 +586,69 @@ const setMinimumStep = minimumStep => {
 };
 
 const repaintAxisCharacters = () => {
-    // calculate the width and height of a single character
-    // this is used to calculate the step size, and also the positioning of the
-    // axis
-    var needsReflow = false,
-        dom = this.dom,
-        axis = dom.axis,
-        text;
+  // calculate the width and height of a single character
+  // this is used to calculate the step size, and also the positioning of the
+  // axis
+  var needsReflow = false,
+    dom = this.dom,
+    axis = dom.axis,
+    text;
 
-    if (!axis.characterMinor) {
-        text = document.createTextNode("0");
-        var characterMinor = document.createElement("DIV");
-        characterMinor.className = "timeline-axis-text timeline-axis-text-minor";
-        characterMinor.appendChild(text);
-        characterMinor.style.position = "absolute";
-        characterMinor.style.visibility = "hidden";
-        characterMinor.style.paddingLeft = "0px";
-        characterMinor.style.paddingRight = "0px";
-        axis.frame.appendChild(characterMinor);
+  if (!axis.characterMinor) {
+    text = document.createTextNode("0");
+    var characterMinor = document.createElement("DIV");
+    characterMinor.className = "timeline-axis-text timeline-axis-text-minor";
+    characterMinor.appendChild(text);
+    characterMinor.style.position = "absolute";
+    characterMinor.style.visibility = "hidden";
+    characterMinor.style.paddingLeft = "0px";
+    characterMinor.style.paddingRight = "0px";
+    axis.frame.appendChild(characterMinor);
 
-        axis.characterMinor = characterMinor;
-        needsReflow = true;
-    }
+    axis.characterMinor = characterMinor;
+    needsReflow = true;
+  }
 
-    if (!axis.characterMajor) {
-        text = document.createTextNode("0");
-        var characterMajor = document.createElement("DIV");
-        characterMajor.className = "timeline-axis-text timeline-axis-text-major";
-        characterMajor.appendChild(text);
-        characterMajor.style.position = "absolute";
-        characterMajor.style.visibility = "hidden";
-        characterMajor.style.paddingLeft = "0px";
-        characterMajor.style.paddingRight = "0px";
-        axis.frame.appendChild(characterMajor);
+  if (!axis.characterMajor) {
+    text = document.createTextNode("0");
+    var characterMajor = document.createElement("DIV");
+    characterMajor.className = "timeline-axis-text timeline-axis-text-major";
+    characterMajor.appendChild(text);
+    characterMajor.style.position = "absolute";
+    characterMajor.style.visibility = "hidden";
+    characterMajor.style.paddingLeft = "0px";
+    characterMajor.style.paddingRight = "0px";
+    axis.frame.appendChild(characterMajor);
 
-        axis.characterMajor = characterMajor;
-        needsReflow = true;
-    }
+    axis.characterMajor = characterMajor;
+    needsReflow = true;
+  }
 
-    return needsReflow;
+  return needsReflow;
 };
+
+const minStep = setMinimumStep(minimumStep);
+let cur = start(minStep.scale, minStep.step, s);
+
+console.log("start", new Date(s));
+console.log("end", new Date(e));
+console.log("current start", timeToScreen(Date.parse(cur), c));
+// const c1 = next(cur, minStep.scale, minStep.step, new Date(e));
+// const c2 = next(c1, minStep.scale, minStep.step, new Date(e));
+// const c3 = next(c2, minStep.scale, minStep.step, new Date(e));
+// const c4 = next(c3, minStep.scale, minStep.step, new Date(e));
+//
+// console.log("c1", c1);
+// console.log("c2", c2);
+// console.log("c3", c3);
+// console.log("c4", c4);
+// console.log("next", next(cur, minStep.scale, minStep.step, new Date(e)));
+
+// while (!end(Date.parse(cur), e)) {
+//   cur = next(cur, minStep.scale, minStep.step, new Date(e));
+//   console.log(timeToScreen(Date.parse(cur), c));
+// }
+
+console.log("test", screenToTime(0, c));
+
+// console.log(end(cur, e));
