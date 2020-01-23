@@ -61,8 +61,17 @@ titles h xs =
 view : Model -> Html Msg
 view model =
   let
-    conversion = UT.calcConversion 1516306657000 1579378808000 1678
-    _ = Debug.log "test elm" (UT.timeToScreen 1516306657000 conversion)
+    start = 1516306657000
+    end = 1579378808000
+    charWidth = 7.81
+    w = 1396
+    conversion = UT.calcConversion 1516306657000 1579378808000 w
+    minStep = UT.minimumStep charWidth conversion
+    s = UT.setMinimumStep (toFloat (truncate minStep))
+    cur = UT.start s start
+    _ = Debug.log "elm Scale" s
+    _ = Debug.log "elm start" cur
+    _ = Debug.log "elm next" (UT.next s end cur)
   in
   div [class "time-table"]
       [ svg [ SA.id "time-table-view"

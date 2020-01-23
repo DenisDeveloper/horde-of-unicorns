@@ -22,8 +22,8 @@ const recalcConversion = (start, end, contentWidth) => {
   return { offset, factor };
 };
 
-let c = recalcConversion(s, e, 1678);
-console.log("calc js", c);
+let c = recalcConversion(s, e, 1396);
+// console.log("calc js", c);
 
 const screenToTime = (x, conversion) => {
   return new Date(x / conversion.factor + conversion.offset);
@@ -32,6 +32,14 @@ const screenToTime = (x, conversion) => {
 const timeToScreen = (ms, conversion) => {
   return (ms - conversion.offset) * conversion.factor;
 };
+
+// todo: calc char width
+const characterMinorWidth = 7.81;
+
+const minimumStep =
+  screenToTime(characterMinorWidth * 6, c) - screenToTime(0, c);
+
+// console.log(minimumStep);
 
 // const getDataRange = (withMargin) => {
 //     var items = this.items,
@@ -109,11 +117,6 @@ const timeToScreen = (ms, conversion) => {
 // console.log(screenToTime(0, c));
 // console.log(timeToScreen(1579378808000, c));
 
-// todo: calc char width
-const characterMinorWidth = 8;
-
-const minimumStep =
-  screenToTime(characterMinorWidth * 6, c) - screenToTime(0, c);
 
 // console.log(minimumStep);
 
@@ -295,6 +298,8 @@ const roundToMinor = (scale, step, current) => {
   return current;
 };
 
+// console.log("rtm", roundToMinor(6, 1, new Date(1579727404000)));
+
 const start = (scale, step, start) =>
   roundToMinor(scale, step, new Date(start));
 
@@ -305,6 +310,7 @@ const end = (current, end) => {
 const next = (current, scale, step, end) => {
   let prev = Date.parse(current);
   let temp = new Date(current);
+  // console.log("month", current.getMonth());
   // console.log("next", current);
   // Two cases, needed to prevent issues with switching daylight savings
   // (end of March and end of October)
@@ -337,6 +343,7 @@ const next = (current, scale, step, end) => {
         break;
       case SCALE.MONTH:
         // console.log("month");
+        console.log("js cur month", current.getMonth() + step);
         temp.setMonth(current.getMonth() + step);
         break;
       case SCALE.YEAR:
@@ -438,147 +445,138 @@ const setMinimumStep = minimumStep => {
 
   // find the smallest step that is larger than the provided minimumStep
   if (stepYear * 1000 > minimumStep) {
-    console.log("1");
-    scale = SCALE.YEAR;
+        scale = SCALE.YEAR;
     step = 1000;
   }
   if (stepYear * 500 > minimumStep) {
-    console.log("2");
-    scale = SCALE.YEAR;
+        scale = SCALE.YEAR;
     step = 500;
   }
   if (stepYear * 100 > minimumStep) {
-    console.log("3");
-    scale = SCALE.YEAR;
+        scale = SCALE.YEAR;
     step = 100;
   }
   if (stepYear * 50 > minimumStep) {
-    console.log("4");
-    scale = SCALE.YEAR;
+        scale = SCALE.YEAR;
     step = 50;
   }
   if (stepYear * 10 > minimumStep) {
-    console.log("5");
-    scale = SCALE.YEAR;
+        scale = SCALE.YEAR;
     step = 10;
   }
   if (stepYear * 5 > minimumStep) {
-    console.log("6");
-    scale = SCALE.YEAR;
+        scale = SCALE.YEAR;
     step = 5;
   }
   if (stepYear > minimumStep) {
-    console.log("7");
-    scale = SCALE.YEAR;
+        scale = SCALE.YEAR;
     step = 1;
   }
   if (stepMonth * 3 > minimumStep) {
-    console.log("8");
-    scale = SCALE.MONTH;
+        scale = SCALE.MONTH;
     step = 3;
   }
   if (stepMonth > minimumStep) {
-    console.log("9");
-    scale = SCALE.MONTH;
+        scale = SCALE.MONTH;
     step = 1;
   }
   if (stepDay * 5 > minimumStep) {
-    console.log("10");
+
     scale = SCALE.DAY;
     step = 5;
   }
   if (stepDay * 2 > minimumStep) {
-    console.log("11");
+
     scale = SCALE.DAY;
     step = 2;
   }
   if (stepDay > minimumStep) {
-    console.log("12");
+
     scale = SCALE.DAY;
     step = 1;
   }
   if (stepDay / 2 > minimumStep) {
-    console.log("13");
+
     scale = SCALE.WEEKDAY;
     step = 1;
   }
   if (stepHour * 4 > minimumStep) {
-    console.log("14");
+
     scale = SCALE.HOUR;
     step = 4;
   }
   if (stepHour > minimumStep) {
-    console.log("15");
+
     scale = SCALE.HOUR;
     step = 1;
   }
   if (stepMinute * 15 > minimumStep) {
-    console.log("16");
+
     scale = SCALE.MINUTE;
     step = 15;
   }
   if (stepMinute * 10 > minimumStep) {
-    console.log("17");
+
     scale = SCALE.MINUTE;
     step = 10;
   }
   if (stepMinute * 5 > minimumStep) {
-    console.log("18");
+
     scale = SCALE.MINUTE;
     step = 5;
   }
   if (stepMinute > minimumStep) {
-    console.log("19");
+
     scale = SCALE.MINUTE;
     step = 1;
   }
   if (stepSecond * 15 > minimumStep) {
-    console.log("20");
+
     scale = SCALE.SECOND;
     step = 15;
   }
   if (stepSecond * 10 > minimumStep) {
-    console.log("21");
+
     scale = SCALE.SECOND;
     step = 10;
   }
   if (stepSecond * 5 > minimumStep) {
-    console.log("22");
+
     scale = SCALE.SECOND;
     step = 5;
   }
   if (stepSecond > minimumStep) {
-    console.log("23");
+
     scale = SCALE.SECOND;
     step = 1;
   }
   if (stepMillisecond * 200 > minimumStep) {
-    console.log("24");
+
     scale = SCALE.MILLISECOND;
     step = 200;
   }
   if (stepMillisecond * 100 > minimumStep) {
-    console.log("25");
+
     scale = SCALE.MILLISECOND;
     step = 100;
   }
   if (stepMillisecond * 50 > minimumStep) {
-    console.log("26");
+
     scale = SCALE.MILLISECOND;
     step = 50;
   }
   if (stepMillisecond * 10 > minimumStep) {
-    console.log("27");
+
     scale = SCALE.MILLISECOND;
     step = 10;
   }
   if (stepMillisecond * 5 > minimumStep) {
-    console.log("28");
+
     scale = SCALE.MILLISECOND;
     step = 5;
   }
   if (stepMillisecond > minimumStep) {
-    console.log("29");
+
     scale = SCALE.MILLISECOND;
     step = 1;
   }
@@ -628,17 +626,21 @@ const repaintAxisCharacters = () => {
 };
 
 const minStep = setMinimumStep(minimumStep);
-let cur = start(minStep.scale, minStep.step, s);
 
-console.log("start", new Date(s));
-console.log("end", new Date(e));
-console.log("current start", timeToScreen(Date.parse(cur), c));
-// const c1 = next(cur, minStep.scale, minStep.step, new Date(e));
+console.log("js Scale", minStep);
+
+let cur = start(minStep.scale, minStep.step, s);
+console.log("start", cur);
+
+// console.log("start", new Date(s));
+// console.log("end", new Date(e));
+// console.log("current start", timeToScreen(Date.parse(cur), c));
+const c1 = next(cur, minStep.scale, minStep.step, new Date(e));
 // const c2 = next(c1, minStep.scale, minStep.step, new Date(e));
 // const c3 = next(c2, minStep.scale, minStep.step, new Date(e));
 // const c4 = next(c3, minStep.scale, minStep.step, new Date(e));
 //
-// console.log("c1", c1);
+console.log("c1", c1);
 // console.log("c2", c2);
 // console.log("c3", c3);
 // console.log("c4", c4);
@@ -649,6 +651,6 @@ console.log("current start", timeToScreen(Date.parse(cur), c));
 //   console.log(timeToScreen(Date.parse(cur), c));
 // }
 
-console.log("test", screenToTime(0, c));
+// console.log("test", screenToTime(0, c));
 
 // console.log(end(cur, e));
