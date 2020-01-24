@@ -39,41 +39,106 @@ const characterMinorWidth = 7.81;
 const minimumStep =
   screenToTime(characterMinorWidth * 6, c) - screenToTime(0, c);
 
-// console.log(minimumStep);
 
-// const getDataRange = (withMargin) => {
-//     var items = this.items,
-//         min = undefined, // number
-//         max = undefined; // number
-//
-//     if (items) {
-//         for (var i = 0, iMax = items.length; i < iMax; i++) {
-//             var item = items[i],
-//                 start = item.start != undefined ? item.start.valueOf() : undefined,
-//                 end   = item.end != undefined   ? item.end.valueOf() : start;
-//
-//             if (start != undefined) {
-//                 min = (min != undefined) ? Math.min(min.valueOf(), start.valueOf()) : start;
-//             }
-//
-//             if (end != undefined) {
-//                 max = (max != undefined) ? Math.max(max.valueOf(), end.valueOf()) : end;
-//             }
-//         }
-//     }
-//
-//     if (min && max && withMargin) {
-//         // zoom out 5% such that you have a little white space on the left and right
-//         var diff = (max - min);
-//         min = min - diff * 0.05;
-//         max = max + diff * 0.05;
-//     }
-//
-//     return {
-//         'min': min != undefined ? new Date(min) : undefined,
-//         'max': max != undefined ? new Date(max) : undefined
-//     };
-// };
+
+const setVisibleChartRangeAuto = () => {
+  let range = getMarginRange(s, e);
+};
+
+const applyRange = (start, end, zoomAroundDate) => {
+    // calculate new start and end value
+    var startValue = start.valueOf(); // number
+    var endValue = end.valueOf();     // number
+    var interval = (endValue - startValue);
+
+    // determine maximum and minimum interval
+    var options = this.options;
+    var year = 1000 * 60 * 60 * 24 * 365;
+    var zoomMin = Number(options.zoomMin) || 10;
+    if (zoomMin < 10) {
+        zoomMin = 10;
+    }
+    var zoomMax = Number(options.zoomMax) || 10000 * year;
+    if (zoomMax > 10000 * year) {
+        zoomMax = 10000 * year;
+    }
+    if (zoomMax < zoomMin) {
+        zoomMax = zoomMin;
+    }
+
+    // determine min and max date value
+    var min = options.min ? options.min.valueOf() : undefined; // number
+    var max = options.max ? options.max.valueOf() : undefined; // number
+    if (min != undefined && max != undefined) {
+        if (min >= max) {
+            // empty range
+            var day = 1000 * 60 * 60 * 24;
+            max = min + day;
+        }
+        if (zoomMax > (max - min)) {
+            zoomMax = (max - min);
+        }
+        if (zoomMin > (max - min)) {
+            zoomMin = (max - min);
+        }
+    }
+
+    // prevent empty interval
+    if (startValue >= endValue) {
+        endValue += 1000 * 60 * 60 * 24;
+    }
+
+    // prevent too small scale
+    // TODO: IE has problems with milliseconds
+    if (interval < zoomMin) {
+        var diff = (zoomMin - interval);
+        var f = zoomAroundDate ? (zoomAroundDate.valueOf() - startValue) / interval : 0.5;
+        startValue -= Math.round(diff * f);
+        endValue   += Math.round(diff * (1 - f));
+    }
+
+    // prevent too large scale
+    if (interval > zoomMax) {
+        var diff = (interval - zoomMax);
+        var f = zoomAroundDate ? (zoomAroundDate.valueOf() - startValue) / interval : 0.5;
+        startValue += Math.round(diff * f);
+        endValue   -= Math.round(diff * (1 - f));
+    }
+
+    // prevent to small start date
+    if (min != undefined) {
+        var diff = (startValue - min);
+        if (diff < 0) {
+            startValue -= diff;
+            endValue -= diff;
+        }
+    }
+
+    // prevent to large end date
+    if (max != undefined) {
+        var diff = (max - endValue);
+        if (diff < 0) {
+            startValue += diff;
+            endValue += diff;
+        }
+    }
+
+    // apply new dates
+    this.start = new Date(startValue);
+    this.end = new Date(endValue);
+};
+
+
+const getMarginRange = (start, end) => {
+  // zoom out 5% such that you have a little white space on the left and right
+  let diff = (end - start);
+  let min = start - diff * 0.05;
+  let max = end + diff * 0.05;
+
+  return {min, max};
+};
+
+console.log("margin range", getMarginRange(1578792563000, 1579829330000));
 
 // .vis-time-axis .vis-text.vis-measure {
 //   position: absolute;
@@ -112,20 +177,6 @@ const minimumStep =
 //   this.props.majorCharHeight = this.dom.measureCharMajor.clientHeight;
 //   this.props.majorCharWidth = this.dom.measureCharMajor.clientWidth;
 // };
-
-// console.log(c);
-// console.log(screenToTime(0, c));
-// console.log(timeToScreen(1579378808000, c));
-
-
-// console.log(minimumStep);
-
-// if (size.axis.characterMinorWidth) {
-//     this.minimumStep = this.screenToTime(size.axis.characterMinorWidth * 6) -
-//         this.screenToTime(0);
-//
-//     step.setRange(start, end, this.minimumStep);
-// }
 
 // let StepDate = (start, end, minimumStep) => {
 //   // variables
@@ -168,26 +219,25 @@ const setRange = (start, end, minimumStep) => {
 };
 
 const repaintAxis = () => {
-  var start = this.screenToTime(0);
-  var end = this.screenToTime(size.contentWidth);
+  let start = screenToTime(0, c);
+  let end = screenToTime(contentWidth, c);
 
   // calculate minimum step (in milliseconds) based on character size
-  if (size.axis.characterMinorWidth) {
-    this.minimumStep =
-      this.screenToTime(size.axis.characterMinorWidth * 6) -
-      this.screenToTime(0);
+  if (characterMinorWidth) {
+    let minimumStep =
+      screenToTime(characterMinorWidth * 6, c) -
+      screenToTime(0, c);
 
-    step.setRange(start, end, this.minimumStep);
+    step.setRange(start, end, minimumStep);
   }
 
-  var charsNeedsReflow = this.repaintAxisCharacters();
-  needsReflow = needsReflow || charsNeedsReflow;
+  // var charsNeedsReflow = this.repaintAxisCharacters();
 
   // The current labels on the axis will be re-used (much better performance),
   // therefore, the repaintAxis method uses the mechanism with
   // repaintAxisStartOverwriting, repaintAxisEndOverwriting, and
   // this.size.axis.properties is used.
-  this.repaintAxisStartOverwriting();
+  // this.repaintAxisStartOverwriting();
 
   step.start();
   var xFirstMajorLabel = undefined;
@@ -343,7 +393,7 @@ const next = (current, scale, step, end) => {
         break;
       case SCALE.MONTH:
         // console.log("month");
-        console.log("js cur month", current.getMonth() + step);
+        // console.log("js cur month", current.getMonth() + step);
         temp.setMonth(current.getMonth() + step);
         break;
       case SCALE.YEAR:
@@ -625,12 +675,46 @@ const repaintAxisCharacters = () => {
   return needsReflow;
 };
 
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+const DAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
+const addZeros = (value, len) => {
+    let str = "" + value;
+    while (str.length < len) {
+        str = "0" + str;
+    }
+    return str;
+};
+
+// const getLabelMinor = (options, date) => {
+//     if (date == undefined) {
+//         date = this.current;
+//     }
+//
+//     switch (this.scale) {
+//         case SCALE.MILLISECOND:  return String(date.getMilliseconds());
+//         case SCALE.SECOND:       return String(date.getSeconds());
+//         case SCALE.MINUTE:
+//             return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
+//         case SCALE.HOUR:
+//             return this.addZeros(date.getHours(), 2) + ":" + this.addZeros(date.getMinutes(), 2);
+//         case SCALE.WEEKDAY:      return options.DAYS_SHORT[date.getDay()] + ' ' + date.getDate();
+//         case SCALE.DAY:          return String(date.getDate());
+//         case SCALE.MONTH:        return options.MONTHS_SHORT[date.getMonth()];   // month is zero based
+//         case SCALE.YEAR:         return String(date.getFullYear());
+//         default:                                         return "";
+//     }
+// };
+
+
 const minStep = setMinimumStep(minimumStep);
 
-console.log("js Scale", minStep);
+// console.log("js Scale", minStep);
 
 let cur = start(minStep.scale, minStep.step, s);
-console.log("start", cur);
+// console.log("start", cur);
 
 // console.log("start", new Date(s));
 // console.log("end", new Date(e));
@@ -640,7 +724,7 @@ const c1 = next(cur, minStep.scale, minStep.step, new Date(e));
 // const c3 = next(c2, minStep.scale, minStep.step, new Date(e));
 // const c4 = next(c3, minStep.scale, minStep.step, new Date(e));
 //
-console.log("c1", c1);
+// console.log("c1", c1);
 // console.log("c2", c2);
 // console.log("c3", c3);
 // console.log("c4", c4);

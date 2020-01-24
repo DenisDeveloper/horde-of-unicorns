@@ -3,17 +3,21 @@ module Util.Time exposing ( ContentWidth
                           , Milliseconds
                           , Offset
                           , calcConversion
-                          , screenToTime
-                          , timeToScreen
+                          , displayToMs
+                          , msToDisplay
                           , minimumStep
                           , setMinimumStep
-                          , start
+                          , roundStart
                           , next
+                          , label
+                          , labelRange
+                          , marginRange
                           )
 
 import Time as T exposing (Posix)
 
 import List as L
+import String as Str
 
 type alias ContentWidth = Float
 type alias Offset = Int
@@ -42,25 +46,31 @@ stepMinute = 1000 * 60
 stepSecond = 1000
 stepMillisecond = 1
 
+characterMinorWidth = 8
 
 zone = T.customZone (3 * 60) []
 
--- const SCALE = {
---   MILLISECOND: 1,
---   SECOND: 2,
---   MINUTE: 3,
---   HOUR: 4,
---   DAY: 5,
---   WEEKDAY: 6,
---   MONTH: 7,
---   YEAR: 8
--- };
+labelRange start end s c =
+  let
+    startValue = roundStart s start
+    iter cur =
+      let
+        _ = Debug.log "iter" (label s cur)
+        _ = Debug.log "x" (msToDisplay cur c)
+        -- _ = Debug.log "x" cur
+      in
+      if not <| isEnd cur end
+      then iter <| next s end cur
+      else cur
+  in
+  iter start -- Value
 
-characterMinorWidth = 8
+
+
 
 minimumStep : Float -> (Offset, Factor) -> Float
 minimumStep w c =
-  (screenToTime (w * 6) c) - (screenToTime 0 c)
+  (displayToMs (w * 6) c) - (displayToMs 0 c)
 
 calcConversion : Milliseconds -> Milliseconds -> ContentWidth -> ( Offset, Factor )
 calcConversion a b w =
@@ -82,9 +92,63 @@ numOfMonth m =
     T.Nov -> 10
     T.Dec -> 11
 
--- const screenToTime = (x, conversion) => {
+toDisplayWeekday : T.Weekday -> String
+toDisplayWeekday weekday =
+  case weekday of
+    T.Mon -> "пн"
+    T.Tue -> "вт"
+    T.Wed -> "ср"
+    T.Thu -> "чт"
+    T.Fri -> "пт"
+    T.Sat -> "сб"
+    T.Sun -> "вс"
+
+toDisplayMonth : T.Month -> String
+toDisplayMonth month =
+  case month of
+    T.Jan -> "янв"
+    T.Feb -> "фев"
+    T.Mar -> "мар"
+    T.Apr -> "апр"
+    T.May -> "май"
+    T.Jun -> "июн"
+    T.Jul -> "июл"
+    T.Aug -> "авг"
+    T.Sep -> "сен"
+    T.Oct -> "окт"
+    T.Nov -> "ноя"
+    T.Dec -> "дек"
+
+-- const displayToMs = (x, conversion) => {
 --   return new Date(x / conversion.factor + conversion.offset);
 -- };
+
+label : Scale -> Milliseconds -> String
+label s t =
+  case s of
+    Millisecond _ -> Str.fromInt <| T.toMillis zone (T.millisToPosix t)
+    Second _ -> Str.fromInt <| T.toSecond zone (T.millisToPosix t)
+    Minute _ ->
+      let
+        h = Str.fromInt <| T.toHour zone (T.millisToPosix t)
+        m = Str.fromInt <| T.toMinute zone (T.millisToPosix t)
+      in
+      (Str.padLeft 2 '0' h) ++ ":" ++ (Str.padLeft 2 '0' m)
+    Hour _ ->
+      let
+        h = Str.fromInt <| T.toHour zone (T.millisToPosix t)
+        m = Str.fromInt <| T.toMinute zone (T.millisToPosix t)
+      in
+      (Str.padLeft 2 '0' h) ++ ":" ++ (Str.padLeft 2 '0' m)
+    Weekday _ ->
+      let
+        w = T.toWeekday zone (T.millisToPosix t)
+        d = Str.fromInt <| T.toDay zone (T.millisToPosix t)
+      in
+      toDisplayWeekday w ++ " " ++ d
+    Day _ -> Str.fromInt <| T.toDay zone (T.millisToPosix t)
+    Month _ -> toDisplayMonth <| T.toMonth zone (T.millisToPosix t)
+    Year _ -> Str.fromInt <| T.toYear zone (T.millisToPosix t)
 
 setMilliseconds : Int -> Milliseconds -> Milliseconds
 setMilliseconds v ms =
@@ -135,13 +199,25 @@ setYear v ms =
   in
   ms + (stepYear * offset)
 
-screenToTime : Float -> ( Offset, Factor ) -> Float
-screenToTime v ( o, f ) =
+marginRange : Start -> End -> (Start, End)
+marginRange a b =
+  let
+    diff = toFloat (b - a)
+    startValue = (toFloat a) - diff * 0.05
+    endValue = (toFloat b) + diff * 0.05
+    -- _ = Debug.log "start value" startValue
+    -- _ = Debug.log "end value" (truncate 2)
+  in
+  (round startValue, round endValue)
+
+
+displayToMs : Float -> ( Offset, Factor ) -> Float
+displayToMs v ( o, f ) =
   v / f + toFloat o
 
-timeToScreen : Milliseconds -> ( Offset, Factor ) -> Int
-timeToScreen v ( o, f ) =
-  (v - o) * truncate f
+msToDisplay : Milliseconds -> ( Offset, Factor ) -> Int
+msToDisplay v ( o, f ) =
+  round <| (toFloat v - toFloat o) * f
 
 setMinimumStep : Float -> Scale
 setMinimumStep m =
@@ -177,7 +253,7 @@ setMinimumStep m =
   else Day 1
 
 
-roundToMinor : Scale -> Current -> Milliseconds
+roundToMinor : Scale -> Milliseconds -> Milliseconds
 roundToMinor s ms =
   let
     t =
@@ -257,8 +333,8 @@ roundToMinor s ms =
         in setYear (v - (modBy step v)) t
       else t
 
-start : Scale -> Start -> Milliseconds
-start a b = roundToMinor a b
+roundStart : Scale -> Start -> Milliseconds
+roundStart a b = roundToMinor a b
 
 isEnd : Current -> End -> Bool
 isEnd a b = a > b
@@ -288,7 +364,6 @@ next s end current =
           Month step ->
             let
               v = numOfMonth <| T.toMonth zone (T.millisToPosix current)
-              _ = Debug.log "elm cur month" (v + step)
             in setMonth (v + step) current
           Year step ->
             let v = T.toYear zone (T.millisToPosix current)

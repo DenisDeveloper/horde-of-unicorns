@@ -61,17 +61,22 @@ titles h xs =
 view : Model -> Html Msg
 view model =
   let
-    start = 1516306657000
-    end = 1579378808000
+    -- start = 1516306657000
+    -- end = 1579378808000
+    -- (start, end) = UT.marginRange 1578792563000 1579829330000
+    start = 1578792563000
+    end = 1579829330000
+    -- _ = Debug.log "margin" (UT.marginRange start end)
     charWidth = 7.81
     w = 1396
-    conversion = UT.calcConversion 1516306657000 1579378808000 w
+    conversion = UT.calcConversion start end w
     minStep = UT.minimumStep charWidth conversion
-    s = UT.setMinimumStep (toFloat (truncate minStep))
-    cur = UT.start s start
-    _ = Debug.log "elm Scale" s
-    _ = Debug.log "elm start" cur
-    _ = Debug.log "elm next" (UT.next s end cur)
+    s = UT.setMinimumStep minStep
+    -- cur = UT.roundStart s start
+    _ = Debug.log "range" (UT.labelRange start end s conversion)
+    _ = Debug.log "scale" s
+    _ = Debug.log "conversion" conversion
+    -- _ = Debug.log "elm next" (UT.next s end cur)
   in
   div [class "time-table"]
       [ svg [ SA.id "time-table-view"
