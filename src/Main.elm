@@ -59,8 +59,8 @@ main =
       }
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-  onResize (\_ _ -> OnPageResize)
+subscriptions _ = Sub.none
+  -- onResize (\_ _ -> OnPageResize)
 
 getWidth = .width << .element
 
@@ -145,9 +145,6 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div [Attr.id "root", onClick FetchJobs]
-  [ H.header [] []
-  , H.main_ []
-    [ H.aside [] []
-    , TT.view model
-    , H.aside [] []]
-  , H.footer [] []]
+  [ H.main_ []
+    [ TT.view model ]
+  ]

@@ -2,13 +2,13 @@ module Util.Time exposing ( ContentWidth
                           , Factor
                           , Milliseconds
                           , Offset
+                          , Label
+                          , Conversion
                           , calcConversion
                           , displayToMs
                           , msToDisplay
                           , minimumStep
                           , setMinimumStep
-                          , roundStart
-                          , next
                           , label
                           , labelRange
                           , marginRange
@@ -26,6 +26,12 @@ type alias Milliseconds = Int
 type alias Start = Milliseconds
 type alias End = Milliseconds
 type alias Current = Milliseconds
+type alias Conversion = (Offset, Factor)
+
+type alias Label =
+  { x : Int
+  , content : String
+  }
 
 type Scale
   = Millisecond Int
@@ -50,31 +56,37 @@ characterMinorWidth = 8
 
 zone = T.customZone (3 * 60) []
 
+
+
+-- labelRangeHelp cur acc =
+
+labelRange : Start -> End -> Scale -> Conversion -> List Label
 labelRange start end s c =
   let
     startValue = roundStart s start
-    iter cur =
+    -- iter : Current -> List Current -> List Current
+    iter cur acc =
       let
-        _ = Debug.log "iter" (label s cur)
-        _ = Debug.log "x" (msToDisplay cur c)
-        -- _ = Debug.log "x" cur
+        x = msToDisplay cur c
+        content = label s cur
+        val = {x = x, content = content}
       in
       if not <| isEnd cur end
-      then iter <| next s end cur
-      else cur
+      then iter (next s end cur) (acc ++ [val])
+      else acc ++ [val]
   in
-  iter start -- Value
+  iter startValue [] -- startValue
 
 
 
 
-minimumStep : Float -> (Offset, Factor) -> Float
+minimumStep : Float -> Conversion -> Float
 minimumStep w c =
   (displayToMs (w * 6) c) - (displayToMs 0 c)
 
-calcConversion : Milliseconds -> Milliseconds -> ContentWidth -> ( Offset, Factor )
-calcConversion a b w =
-  ( a, w / toFloat (b - a) )
+calcConversion : Start -> End -> ContentWidth -> Conversion
+calcConversion start end w =
+  ( start, w / toFloat (end - start) )
 
 numOfMonth : T.Month -> Int
 numOfMonth m =

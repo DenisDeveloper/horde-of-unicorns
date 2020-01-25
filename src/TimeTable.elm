@@ -44,16 +44,16 @@ timeRange =
   , 1707.9457580890178
   ]
 
-title : Float -> Int -> String -> Svg Msg
+title : Int -> Int -> String -> Svg Msg
 title x y v =
-  S.text_ [ SA.x (Str.fromFloat x)
+  S.text_ [ SA.x (Str.fromInt x)
           , SA.y (Str.fromInt y)]
           [text v]
 
-titles : Int -> List Float -> Svg Msg
+titles : Int -> List UT.Label -> Svg Msg
 titles h xs =
   S.g [SA.class "axis"]
-  <| L.indexedMap (\i x -> title x (h - 20) (Str.fromInt i)) xs
+  <| L.map (\label -> title label.x (h - 20) label.content) xs
 
 -- const s = 1516306657000;
 -- const e = 1579378808000;
@@ -61,27 +61,42 @@ titles h xs =
 view : Model -> Html Msg
 view model =
   let
+    _ = Debug.log "model" (model.viewportWidth)
     -- start = 1516306657000
     -- end = 1579378808000
-    -- (start, end) = UT.marginRange 1578792563000 1579829330000
-    start = 1578792563000
-    end = 1579829330000
+    start = 1325376000000
+    end = 1325793600000
+    -- (start, end) = UT.marginRange 1325376000000 1325793600000
+    -- start = 1578792563000
+    -- end = 1579829330000
     -- _ = Debug.log "margin" (UT.marginRange start end)
-    charWidth = 7.81
-    w = 1396
-    conversion = UT.calcConversion start end w
+    -- _ = Debug.log "margin" (truncate 1000000000000)
+    charWidth = 7
+    w = if model.viewportWidth > 0 then (model.viewportWidth) else 200
+    conversion = UT.calcConversion start end w -- model.viewportWidth
     minStep = UT.minimumStep charWidth conversion
     s = UT.setMinimumStep minStep
+    axisLabels = UT.labelRange start end s conversion
     -- cur = UT.roundStart s start
-    _ = Debug.log "range" (UT.labelRange start end s conversion)
-    _ = Debug.log "scale" s
-    _ = Debug.log "conversion" conversion
+    -- _ = Debug.log "range" (UT.labelRange start end s conversion)
+    -- _ = Debug.log "scale" s
+    -- _ = Debug.log "conversion" conversion
     -- _ = Debug.log "elm next" (UT.next s end cur)
   in
-  div [class "time-table"]
-      [ svg [ SA.id "time-table-view"
-            , width "100%"
-            , height "100%"
-            ]
-            [(titles (truncate model.viewportHeight) timeRange)]
-      ]
+  if model.viewportWidth > 0
+  then
+    div [class "time-table"]
+        [ svg [ SA.id "time-table-view"
+              , width "100%"
+              , height "100%"
+              ]
+              [(titles (round model.viewportHeight) axisLabels)]
+        ]
+  else
+    div [class "time-table"]
+        [ svg [ SA.id "time-table-view"
+              , width "100%"
+              , height "100%"
+              ]
+              []
+        ]
