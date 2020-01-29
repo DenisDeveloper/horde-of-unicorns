@@ -12,7 +12,7 @@ import String as Str
 import AppModel exposing (Model)
 import AppMsg exposing (Msg)
 
-import Util.Time as UT
+import Util.Alternative as UT
 
 -- timeRange = L.range 1 31
 

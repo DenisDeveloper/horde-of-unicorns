@@ -21,6 +21,7 @@ import AppMsg exposing (Msg(..))
 import ClusterGenerator as Cluster
 
 import TimeTable as TT
+import Util.Time exposing (foo)
 
 viewport = "time-table-view"
 
@@ -49,7 +50,8 @@ initModel =
 main : Program () Model Msg
 main =
   let
-    _ = Debug.log "clusters" "main"
+    _ = Debug.log "main" "render"
+    h = foo
   in
     B.element
       { init = \_ -> (initModel, getBoundary)
